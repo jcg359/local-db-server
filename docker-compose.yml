@@ -9,3 +9,13 @@ services:
     ports:
       - "3306:3306"
 
+  python-app:
+    build: ./python-server
+    ports:
+      - "8080:8080"
+    env_file: .env
+    environment:
+      MYSQL_HOST: mysql
+    depends_on:
+      - mysql
+
