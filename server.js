@@ -8,6 +8,25 @@ const mssqlRunner = require('./db/mssql');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.post('/init-mysql', async (req, res) => {
+  const conn = connections.holiday_gifts_mysql;
+  try {
+    await mysqlRunner.runQuery(conn, `
+      CREATE TABLE IF NOT EXISTS UserPrincipal (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    const username = 'user_' + Math.random().toString(36).slice(2, 10);
+    await mysqlRunner.runQuery(conn, `INSERT INTO UserPrincipal (username) VALUES ('${username}')`);
+    res.json({ message: 'UserPrincipal table ready', inserted: username });
+  } catch (err) {
+    console.error('Error in /init-mysql:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/datasets/:name', async (req, res) => {
   const { name } = req.params;
 
